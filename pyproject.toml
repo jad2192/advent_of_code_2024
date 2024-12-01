@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "aoc2024"
+version = "0.1.0"
+description = "Advent of Code 2024"
+authors = ["James Diotte <JamesDiotte@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+black = "^22.10.0"
+isort = "^5.10.1"
+flake8 = "^6.0.0"
+pytest = "^7.2.0"
+mypy = "^0.991"
+
+[tool.poetry.dev-dependencies]
+ipykernel = "^6.18.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
