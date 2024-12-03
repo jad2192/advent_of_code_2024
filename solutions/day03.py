@@ -65,12 +65,31 @@ def get_all_valid_instructions(raw_signal: str) -> list[MulXY]:
     return valid_instructions
 
 
+def get_gated_valid_instructions(raw_signal: str) -> list[MulXY]:
+    valid_instructions = []
+    signal_blocks = raw_signal.split("don't()")
+    # gates start opem
+    valid_instructions += get_all_valid_instructions(signal_blocks[0])
+    if len(signal_blocks) == 1:
+        return valid_instructions
+    for signal_block in signal_blocks[1:]:
+        do_blocks = signal_block.split("do()")
+        if len(do_blocks) > 1:
+            valid_instructions += get_all_valid_instructions("".join(do_blocks[1:]))
+    return valid_instructions
+
+
 # Test
 raw_signal_test = open("inputs/day03/test.txt").read()
+raw_signal_test2 = open("inputs/day03/test2.txt").read()
 valid_instructions_test = get_all_valid_instructions(raw_signal_test)
+gated_valid_instructions_test = get_gated_valid_instructions(raw_signal_test2)
 assert sum(ins.execute() for ins in valid_instructions_test) == 161
+assert sum(ins.execute() for ins in gated_valid_instructions_test) == 48
 
 # Main
 raw_signal = open("inputs/day03/main.txt").read()
 valid_instructions = get_all_valid_instructions(raw_signal)
+gated_valid_instructions = get_gated_valid_instructions(raw_signal)
 print(f"Part 1: {sum(ins.execute() for ins in valid_instructions)}")
+print(f"Part 2: {sum(ins.execute() for ins in gated_valid_instructions)}")
