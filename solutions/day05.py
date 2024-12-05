@@ -1,4 +1,4 @@
-def load_raw_rules_and_updates(document_path: str) -> tuple[set[str], list[list[int]]]:
+def load_rules_and_updates(document_path: str) -> tuple[set[str], list[list[int]]]:
     init_split = open(document_path).read().split("\n\n")
     updates = [[int(k) for k in line.split(",")] for line in init_split[1].split("\n")]
     return set(init_split[0].split("\n")), updates
