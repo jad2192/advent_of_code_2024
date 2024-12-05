@@ -25,7 +25,7 @@ def get_middle_digit(rule: list[int]) -> int:
 
 
 # Test
-rules_test, updates_test = load_raw_rules_and_updates("inputs/day05/test.txt")
+rules_test, updates_test = load_rules_and_updates("inputs/day05/test.txt")
 valid_rules_test = get_valid_updates(updates_test, rules_test)
 sorted_invalid_rules_test = [sort_bad_update(upd, rules_test) for upd in updates_test if upd not in valid_rules_test]
 assert sum(get_middle_digit(rule) for rule in valid_rules_test) == 143
@@ -33,7 +33,7 @@ assert sum(get_middle_digit(rule) for rule in sorted_invalid_rules_test) == 123
 
 
 # Main
-rules, updates = load_raw_rules_and_updates("inputs/day05/main.txt")
+rules, updates = load_rules_and_updates("inputs/day05/main.txt")
 valid_rules = get_valid_updates(updates, rules)
 sorted_invalid_rules = [sort_bad_update(upd, rules) for upd in updates if upd not in valid_rules]
 print(f"Part 1: {sum(get_middle_digit(rule) for rule in valid_rules)}")
