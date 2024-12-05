@@ -1,18 +1,11 @@
-def load_raw_rules_and_updates(document_path: str) -> tuple[list[str], list[str]]:
+def load_raw_rules_and_updates(document_path: str) -> tuple[set[str], list[list[int]]]:
     init_split = open(document_path).read().split("\n\n")
-    return init_split[0].split("\n"), init_split[1].split("\n")
-
-
-def get_update_lists(raw_updates: list[str]) -> list[list[int]]:
-    return [[int(k) for k in line.split(",")] for line in raw_updates]
-
-
-def get_ordered_rules(raw_rules: list[str]) -> set[str]:
-    return set(raw_rules)  # X < Y iff "X|Y" in rule_set
+    updates = [[int(k) for k in line.split(",")] for line in init_split[1].split("\n")]
+    return set(init_split[0].split("\n")), updates
 
 
 def sort_bad_update(bad_update: list[int], order_rules: set[str]) -> list[int]:
-    # run insertion sort
+    # run insertion : X < Y iff "X|Y" in order_rules set
     for k in range(1, len(bad_update)):
         cur_val = bad_update[k]
         j = k - 1
@@ -32,9 +25,7 @@ def get_middle_digit(rule: list[int]) -> int:
 
 
 # Test
-raw_rules_test, raw_updates_test = load_raw_rules_and_updates("inputs/day05/test.txt")
-rules_test = get_ordered_rules(raw_rules_test)
-updates_test = get_update_lists(raw_updates_test)
+rules_test, updates_test = load_raw_rules_and_updates("inputs/day05/test.txt")
 valid_rules_test = get_valid_updates(updates_test, rules_test)
 sorted_invalid_rules_test = [sort_bad_update(upd, rules_test) for upd in updates_test if upd not in valid_rules_test]
 assert sum(get_middle_digit(rule) for rule in valid_rules_test) == 143
@@ -42,9 +33,7 @@ assert sum(get_middle_digit(rule) for rule in sorted_invalid_rules_test) == 123
 
 
 # Main
-raw_rules, raw_updates = load_raw_rules_and_updates("inputs/day05/main.txt")
-rules = get_ordered_rules(raw_rules)
-updates = get_update_lists(raw_updates)
+rules, updates = load_raw_rules_and_updates("inputs/day05/main.txt")
 valid_rules = get_valid_updates(updates, rules)
 sorted_invalid_rules = [sort_bad_update(upd, rules) for upd in updates if upd not in valid_rules]
 print(f"Part 1: {sum(get_middle_digit(rule) for rule in valid_rules)}")
