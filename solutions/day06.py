@@ -43,18 +43,12 @@ def count_obstacle_positions(
     map_grid: dict[tuple[int, int], str],
 ) -> int:
     obs_pos = set()
-    for pos in guard_positions:
-        r, c, dxn = pos
-        r_n = r + (dxn == "v") - (dxn == "^")
-        c_n = c + (dxn == ">") - (dxn == "<")
-        if (r_n, c_n, dxn) not in guard_positions:
-            continue
-        obstacle_grid = dict(map_grid)
-        obstacle_grid[(r_n, c_n)] = "#"
+    for r, c, _ in guard_positions - {start_position}:
+        obstacle_grid = dict(map_grid) | {(r, c): "#"}
         deflected_guard = Guard(start_position)
         get_guard_positions(deflected_guard, obstacle_grid)
         if deflected_guard.on_grid:
-            obs_pos.add((r_n, c_n))
+            obs_pos.add((r, c))
     return len(obs_pos)
 
 
