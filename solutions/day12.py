@@ -1,6 +1,3 @@
-MAP = {1j: "d", -1j: "u", 1: "r", -1: "l"}
-
-
 class GardenMap:
     def __init__(self, map_fp: str):
         self.grid: dict[complex, str] = {
