@@ -16,41 +16,42 @@ class MemoryGrid:
 
     def _dijkstra(self, bytes: int | None = None) -> int | None:
         bytes = bytes or self.bytes
-        queue = set(self.dist).difference(self.corrupted_memory[bytes])
+        queue = list(set(self.dist).difference(self.corrupted_memory[bytes]))
         self.dist[0] = 0
-        priority = sorted(list(queue), key=lambda w: self.dist[w])
+        queue.sort(key=lambda w: self.dist[w])
         while queue:
-            z = priority.pop(0)
-            queue.remove(z)
+            z = queue.pop(0)
             for dxn in {1, -1, 1j, -1j}:
                 if z + dxn in queue:
                     new_dist = self.dist[z] + 1
                     if new_dist < self.dist[z + dxn]:
                         self.dist[z + dxn] = new_dist
-                        priority.sort(key=lambda w: self.dist[w])
+                        queue.sort(key=lambda w: self.dist[w])
 
     def get_shortest_path(self):
         self._dijkstra()
         return self.dist[complex(self.grid_max, self.grid_max)]
 
-    def get_blocker(self, start_byte: int):
-        reachable = True
-        bytes = start_byte
+    def _escapable(self, bytes: int) -> bool:
         self._reset_dist()
-        while reachable and bytes <= max(self.corrupted_memory):
-            self._dijkstra(bytes)
-            if self.dist[complex(self.grid_max, self.grid_max)] < math.inf:
-                bytes += 1
-                self._reset_dist()
-            else:
-                reachable = False
-        return list(self.corrupted_memory[bytes].difference(self.corrupted_memory[bytes - 1]))[0]
+        self._dijkstra(bytes)
+        return self.dist[complex(self.grid_max, self.grid_max)] < math.inf
+
+    def get_blocker(self, start_byte: int, end_byte: int | None = None):
+        end_byte = end_byte or max(self.corrupted_memory)
+        if start_byte == end_byte - 1:
+            return list(self.corrupted_memory[end_byte].difference(self.corrupted_memory[start_byte]))[0]
+        midpoint = (start_byte + end_byte) // 2
+        if self._escapable(midpoint):
+            return self.get_blocker(midpoint, end_byte)
+        else:
+            return self.get_blocker(start_byte, midpoint)
 
 
 # Test
 test_grid = MemoryGrid("inputs/day18/test.txt", 12, 6)
 assert test_grid.get_shortest_path() == 22
-assert test_grid.get_blocker(13) == 6 + 1j
+assert test_grid.get_blocker(12) == 6 + 1j
 
 # Main
 grid = MemoryGrid("inputs/day18/main.txt", 1024, 70)
