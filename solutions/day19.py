@@ -1,6 +1,6 @@
 class OnsenDesigns:
     def __init__(self, onsen_fp: str):
-        self.cache: dict[str, bool] = {}
+        self.cache: dict[str, int] = {}
         towel_str, pattern_str = open(onsen_fp).read().split("\n\n")
         self.towels: set[str] = towel_str.split(", ")
         self.patterns = pattern_str.split("\n")
