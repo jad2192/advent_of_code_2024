@@ -22,11 +22,12 @@ class RaceTrack:
             if z + 1j in self.track_spaces and z - 1j in self.track_spaces:
                 self.cheat_loci[z] = [z + 1j, z - 1j]
         self.dists: dict[complex, int] = {}
+        self.path = []
 
     def neighbors(self, z: complex) -> set[complex]:
         return {z + w for w in {1, -1, 1j, -1j} if z + w in self.track_spaces}
 
-    def path_length(self, cheat_pos: complex | None = None) -> int:
+    def _compute_distances(self) -> int:
         parents = {self.start: None}
         queue = [self.start]
         while queue:
@@ -40,9 +41,11 @@ class RaceTrack:
         length, reverse = 0, 0
         path = self.end
         self.dists[path] = reverse
+        self.path = [path]
         while path is not None:
             reverse -= 1
             path = parents.get(path)
+            self.path = ([path] if path is not None else []) + self.path
             self.dists[path] = reverse
             length += path is not None
         self.dists = {k: v + length for k, v in self.dists.items()}
@@ -50,16 +53,29 @@ class RaceTrack:
 
     def count_fast_cheats(self, cut_off: int) -> int:
         count = 0
-        self.path_length()
+        self._compute_distances()
         for skips in self.cheat_loci.values():
             count += abs(self.dists[skips[0]] - self.dists[skips[1]]) >= cut_off + 2
+        return count
+
+    def get_longer_cheats(self, cheat_duration: int, cut_off) -> int:
+        if self.dists.get(self.end) is None:
+            self._compute_distances()
+        count = 0
+        for k, z_entry in enumerate(self.path[:-cut_off]):
+            for z_end in self.path[k + cut_off :]:
+                d_l1 = abs(z_entry.real - z_end.real) + abs(z_entry.imag - z_end.imag)
+                time_delt = self.dists[z_end] - self.dists[z_entry]
+                count += d_l1 <= cheat_duration and d_l1 <= time_delt - cut_off
         return count
 
 
 # Test
 test_track = RaceTrack("inputs/day20/test.txt")
 assert test_track.count_fast_cheats(4) == 30
+assert test_track.get_longer_cheats(cheat_duration=2, cut_off=4) == 30
 
 # Main
 track = RaceTrack("inputs/day20/main.txt")
 print(f"Part 1: {track.count_fast_cheats(100)}")
+print(f"Part 2: {track.get_longer_cheats(cheat_duration=20, cut_off=100)}")
